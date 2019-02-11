@@ -8,7 +8,15 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "vue": "^2.5.21"
+    "axios": "^0.18.0",
+    "bootstrap": "^4.2.1",
+    "jquery": "^3.3.1",
+    "octicons-vue": "^0.17.12",
+    "popper.js": "^1.14.7",
+    "vue": "^2.5.21",
+    "vue-json-tree-view": "^2.1.4",
+    "vue-router": "^3.0.2",
+    "vue-tabs-with-active-line": "^1.1.4"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.3.0",
