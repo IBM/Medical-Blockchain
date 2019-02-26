@@ -1,0 +1,23 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Backend server for medrec",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "medrec",
+    "server"
+  ],
+  "author": "Ashutosh Nath Agarwal (ashutosh.nath.agarwal@ibm.com)",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "log4js": "^4.0.2",
+    "redis": "^2.8.0",
+    "url": "^0.11.0",
+    "uuid": "^3.3.2"
+  }
+}

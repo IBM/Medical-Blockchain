@@ -20,6 +20,30 @@ export default {
     })
   },
 
+  searchAllUsersForOrgId (model) {
+    return fetch().get('/v1/search/users', {
+      params: {
+        "solutionId": model.solutionId,
+        "organizationId": model.organizationId,
+        "count": model.count
+      }
+    })
+    .catch(err => {
+      console.log(err)
+      var dummy = {}
+      dummy.data = {}
+      return dummy
+    })
+  },
+  
+  getSolutionRoles (model) {
+    return fetch().get('/v1/roles', {
+      params: {
+        "solutionId": model.solutionId
+      }
+    })
+  },
+
   putOrgs (model) {
     return fetch().put('/v1/organizations', {
       params: {

@@ -9,7 +9,7 @@ const fetch = () => {
     headers: {
       'accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': `bearer ${sessionStorage['user-doctor-token']}`
+      'Authorization': `bearer ${sessionStorage['user-patient-token']}`
     }
   })
 }

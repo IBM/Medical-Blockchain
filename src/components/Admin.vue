@@ -1,7 +1,7 @@
 <template>
   <div class="component-container">
+    <h3>Solution Admin</h3>
     <div class="top-div">
-      <h3>Solution Admin</h3>
       <tabs 
         :tabs="tabs"
         :currentTab="currentTab"
@@ -48,7 +48,7 @@
       </div>
     </div>
 
-    <div class="component-shell-container json-div">
+    <div class="component-shell-container">
       <tree-view :data="response" />
     </div>
   </div>
@@ -77,13 +77,20 @@ export default {
   data: () => ({
     response: {},
     orgs: [],
+    docs: [],
     tabs: TABS,
     currentTab: 'get-solution',
     admin: {}
   }),
+  created () {
+    serverBus.$on('triggerGetOrgs', (orgId) => {
+      this.searchAllUsersForOrgId(orgId)
+    })
+  },
   mounted () {
     this.getSolutionById()
     this.searchAllOrgs()
+    this.getAllRoles()
   },
   methods: {
     tabClick (newTab) {
@@ -92,8 +99,6 @@ export default {
 
       if (this.currentTab == 'get-solution')
         this.getSolutionById()
-      else if (this.currentTab == 'post-org-admin')
-        this.searchAllOrgs()
     },
 
     async getSolutionById () {
@@ -125,6 +130,35 @@ export default {
         })
         this.orgs = apiResponse.data.response
         serverBus.$emit('allOrgs', this.orgs)
+        this.searchAllUsers()
+      }
+    },
+
+    searchAllUsers () {
+      for (var org of this.orgs) {
+        this.searchAllUsersForOrgId(org.id)
+      }
+      serverBus.$emit('allOrgs', this.orgs)
+    },
+
+    async searchAllUsersForOrgId (orgId) {
+      var solId = this.solutionId
+      if (solId) {
+        const apiResponse = await Api.searchAllUsersForOrgId({
+          solutionId: solId,
+          organizationId: orgId,
+          count: false
+        })
+
+        var orgIndex = null
+        for (var index in this.orgs) {
+          if (this.orgs[index].id == orgId) {
+            orgIndex = index
+            break
+          }
+        }
+
+        this.$set(this.orgs[orgIndex], 'users', apiResponse.data.response)
       }
     },
 
@@ -151,6 +185,17 @@ export default {
         this.response = apiResponse.data
       }
     },
+
+    async getAllRoles () {
+      var solId = this.solutionId
+      
+      if (solId) {
+        const apiResponse = await Api.getSolutionRoles({
+          solutionId: solId
+        })
+        serverBus.$emit('allRoles', apiResponse.data.response)
+      }
+    },
   }
 }
 
@@ -161,15 +206,6 @@ export default {
 
 .component-container {
   float: left;
-}
-
-.top-div {
-  height: 170px;
-}
-
-.json-div {
-  overflow: scroll;
-  text-align: left;
 }
 
 </style>

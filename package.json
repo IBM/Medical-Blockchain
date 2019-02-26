@@ -10,13 +10,17 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap": "^4.2.1",
+    "cache-loader": "^2.0.1",
     "jquery": "^3.3.1",
     "octicons-vue": "^0.17.12",
     "popper.js": "^1.14.7",
+    "url": "^0.11.0",
     "vue": "^2.5.21",
     "vue-json-tree-view": "^2.1.4",
+    "vue-jwt-decode": "^0.1.0",
     "vue-router": "^3.0.2",
-    "vue-tabs-with-active-line": "^1.1.4"
+    "vue-tabs-with-active-line": "^1.1.4",
+    "vue-uuid": "^1.1.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.3.0",

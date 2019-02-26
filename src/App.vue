@@ -62,12 +62,23 @@ body {
   padding: 20px;
 }
 
+.reactive-list {
+  height: calc(50vh - 50px);
+  overflow: scroll;
+}
+
+.top-div {
+  height: 110px;
+}
+
 .component-shell-container {
   padding: 20px;
   background-color: #000000;
   margin-left: 20px;
   margin-right: 20px;
-  height: calc(50vh - 170px);
+  height: calc(50vh - 152px);
+  overflow: scroll;
+  text-align: left;
 }
 
 .tabs {
@@ -121,6 +132,10 @@ body {
   height: 2px;
   background-color: black;
 	transition: transform 0.4s ease, width 0.4s ease;
+}
+
+.login-component {
+  height: 0;
 }
 
 </style>

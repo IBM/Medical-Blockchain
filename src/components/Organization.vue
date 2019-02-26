@@ -1,10 +1,10 @@
 <template>
-<div>
-  <div class="component-container" v-if="!isLoggedIn">
-    <h3>Organization Admin</h3>
-    <Login :caller="caller"></Login>
+<div class="component-container">
+  <h3>Organization Admin</h3>
+  <Login :caller="caller" class="login-component"></Login>
 
-    <div class="component-inner-container" v-if="!isLogin">
+  <div v-if="!isLoggedIn">
+    <div class="component-inner-container reactive-list" v-if="!isLogin">
       <center>
         <button type="button" class="btn btn-primary" style="display: block; margin-bottom: 5px;" v-for="org in orgs">
           {{ org.name }} ({{ org.id }})
@@ -13,9 +13,8 @@
     </div>
   </div>
 
-  <div class="component-container" v-else-if="isLoggedIn">
+  <div v-if="isLoggedIn">
     <div class="top-div">
-      <h3>Organization Admin</h3>
       <tabs 
         :tabs="tabs"
         :currentTab="currentTab"
@@ -25,44 +24,48 @@
         :line-class="'default-tabs__active-line'"
         @onClick="tabClick" />
      
-      <!-- GET SOLUTION -->
-      <div class="component-inner-container" v-if="currentTab=='get-solution'" @onClick="getSolutionById">
-      </div>
-
-      <!-- PUT ORG -->
-      <div class="component-inner-container" v-if="currentTab=='put-org'">
+      <!-- PUT ORG USER -->
+      <div class="component-inner-container" v-if="currentTab=='put-org-user'">
         <div class="form-row">
           <div class="col">
-            <input type="text" v-model="admin.putorgorgname" class="form-control" placeholder="Organization Name">
+            <input type="text" v-model="admin.putorgusername" class="form-control" placeholder="User Name">
           </div>
           <div class="col">
-            <button type="button" class="btn btn-success" v-on:click="putOrgs()">Commit</button>
+            <input type="text" v-model="admin.putorguseremail" class="form-control" placeholder="User Email">
           </div>
-        </div>
-      </div>
-
-      <!-- POST ORG ADMIN -->
-      <div class="component-inner-container" v-if="currentTab=='post-org-admin'" @onClick="searchAllOrgs">
-        <div class="form-row">
           <div class="col">
-            <select class="form-control" v-model="admin.postorgadminorgid">
-              <option value="" selected disabled>Select Organization</option>
-              <option v-for="org in orgs">
-                {{ org.name }}
+            <select class="form-control" v-model="admin.putorguserrole">
+              <option value="" selected disabled>Select Role</option>
+              <option v-for="role in roles">
+                {{ role.name }}
               </option>
             </select>
           </div>
           <div class="col">
-            <input type="text" v-model="admin.postorgadminadmin" class="form-control" placeholder="Admin Email-Id">
+            <button type="button" class="btn btn-success" v-on:click="putOrgUser()">Commit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DELETE ORG USER -->
+      <div class="component-inner-container" v-if="currentTab=='del-org-user'">
+        <div class="form-row">
+          <div class="col" v-for="org in orgs" v-if="org.id==jwt.oid">
+            <select class="form-control" v-model="admin.delorgusername">
+              <option value="" selected disabled>Select User</option>
+              <option v-for="user in org.users">
+                {{ user.name }}
+              </option>
+            </select>
           </div>
           <div class="col">
-            <button type="button" class="btn btn-success" v-on:click="postOrgAdmin()">Commit</button>
+            <button type="button" class="btn btn-success" v-on:click="delOrgUser()">Commit</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="component-shell-container json-div">
+    <div class="component-shell-container">
       <tree-view :data="response" />
     </div>
   </div>
@@ -76,10 +79,8 @@ import Login from '@/components/Login'
 import { serverBus } from '@/main'
 
 const TABS = [
-  { title: 'Get solution', value: 'get-solution'},
-  { title: 'Put Organization', value: 'put-org'},
-  { title: 'Post Org Admin', value: 'post-org-admin'},
-  { title: 'Delete Org Admin', value: 'delete-org-admin'},
+  { title: 'Put Org User', value: 'put-org-user'},
+  { title: 'Delete Org User', value: 'del-org-user'},
 ]
 
 export default {
@@ -94,23 +95,31 @@ export default {
   data: () => ({
     response: {},
     orgs: [],
+    roles: [],
     tabs: TABS,
-    currentTab: 'get-solution',
+    currentTab: 'put-org-user',
     admin: {},
     caller: 'org',
     isLogin: false,
-    isLoggedIn: false
+    isLoggedIn: false,
+    jwt: {}
   }),
   created () {
     serverBus.$on('allOrgs', (allOrgs) => {
       this.orgs = allOrgs
-      this.searchAllUsers()
+    }),
+    serverBus.$on('allRoles', (allRoles) => {
+      this.roles = allRoles
     }),
     serverBus.$on(`${this.caller}-isLogin`, (login) => {
       this.isLogin = login
     }),
     serverBus.$on(`${this.caller}-isLoggedIn`, (login) => {
       this.isLoggedIn = login
+    }),
+    serverBus.$on(`${this.caller}-jwt`, (decodedJWT) => {
+      this.jwt = decodedJWT
+      console.log(this.jwt)
     })
   },
   mounted () {
@@ -121,67 +130,63 @@ export default {
       this.response = {}
     },
 
-    async getSolutionById () {
+    async putOrgUser () {
       var solId = this.solutionId
-      if (solId) {
-        const apiResponse = await Api.getSolutionById(solId)
-        this.response = apiResponse.data
-      }
-    },
-
-    async putOrgs () {
-      var orgName = this.admin.putorgorgname
-      var solId = this.solutionId
-      if (orgName && solId) {
-        const apiResponse = await Api.putOrgs({
-          name: orgName,
-          solutionId: solId
-        })
-        this.response = apiResponse.data
-      }
-    },
-
-    searchAllUsers () {
-      for (var orgIndex in this.orgs) {
-        this.searchAllUsersForOrgId(this.orgs[orgIndex].id, orgIndex)
-      }
-      serverBus.$emit('allOrgsWithUsers', this.orgs)
-    },
-
-    async searchAllUsersForOrgId (orgId, orgIndex) {
-      var solId = this.solutionId
-      if (solId) {
-        const apiResponse = await Api.searchAllUsersForOrgId({
-          solutionId: solId,
-          organizationId: orgId,
-          count: false
-        })
-
-        this.$set(this.orgs[orgIndex], 'users', apiResponse.data.response)
-      }
-    },
-
-    async postOrgAdmin () {
-      var solId = this.solutionId
-      var admin = this.admin.postorgadminadmin
-      var orgName = this.admin.postorgadminorgid
+      var userName = this.admin.putorgusername
+      var userEmail = this.admin.putorguseremail
+      var roleName = this.admin.putorguserrole
       
-      var orgId = false
-      // Get orgId from orgName
-      for (var org of this.orgs.response) {
-        if (org.name == orgName) {
-          orgId = org.id
+      var orgId = this.jwt.oid
+
+      var roleId = null
+      // Get roleId from roleName
+      for (var role of this.roles) {
+        if (role.name == roleName) {
+          roleId = role.id
           break
         }
       }
-
-      if (solId && admin && orgId) {
-        const apiResponse = await Api.postOrgAdmin({
+      
+      if (orgId && solId && userName && userEmail && roleId) {
+        const apiResponse = await Api.putOrgUser({
+          orgId: orgId,
           solutionId: solId,
-          organizationId: orgId,
-          adminEmailId: admin
+          name: userName,
+          userId: userEmail,
+          roleId: roleId
         })
         this.response = apiResponse.data
+        serverBus.$emit('triggerGetOrgs', orgId)
+      }
+    },
+
+    async delOrgUser () {
+      var solId = this.solutionId
+      var userName = this.admin.delorgusername
+      
+      var orgId = this.jwt.oid
+
+      var userDocId = null
+      // Get userDocId from userName
+      for (var org of this.orgs) {
+        if (org.id == orgId) {
+          for (var user of org.users) {
+            if (user.name == userName) {
+              userDocId = user.uid
+              break
+            }
+          }
+        }
+      }
+
+      if (orgId && solId && userDocId) {
+        const apiResponse = await Api.delOrgUser({
+          orgId: orgId,
+          solutionId: solId,
+          userDocId: userDocId,
+        })
+        this.response = apiResponse.data
+        serverBus.$emit('triggerGetOrgs', orgId)
       }
     },
   }
@@ -194,15 +199,6 @@ export default {
 
 .component-container {
   float: left;
-}
-
-.top-div {
-  height: 170px;
-}
-
-.json-div {
-  overflow: scroll;
-  text-align: left;
 }
 
 </style>
