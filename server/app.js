@@ -28,7 +28,7 @@ app.post('/aclusertodoc', function(req, res) {
   var redisClient = redisClientUserToDoc;
 
   logger.debug("-- POST /aclusertodoc");
-  console.log("users: " + req.body.users);
+  console.log(req.body.users);
   console.log(req.body.doc);
 
   for (var userId of req.body.users) {
@@ -75,7 +75,7 @@ app.post('/acldoctouser', function(req, res) {
   var redisClient = redisClientDocToUser;
   
   logger.debug("-- POST /acldoctouser");
-  console.log("users: " + req.body.users);
+  console.log(req.body.users);
   console.log(req.body.docId);
 
   redisClient.get(req.body.docId, function(err, result) {
@@ -85,10 +85,10 @@ app.post('/acldoctouser', function(req, res) {
     if (result) {
       result = JSON.parse(result);
       result.push(...req.body.users);
-      redisClient.set(userId, JSON.stringify(result));
+      redisClient.set(req.body.docId, JSON.stringify(result));
     } else {
       result = req.body.users;
-      redisClient.set(userId, JSON.stringify(result));
+      redisClient.set(req.body.docId, JSON.stringify(result));
     }
   });
 

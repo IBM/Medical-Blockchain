@@ -31,6 +31,6 @@ export default {
   },
 
   getDocToUserMapping (docId) {
-    return fetch().get(`/aclusertodoc/${docId}`)
+    return fetch().get(`/acldoctouser/${docId}`)
   },
 }

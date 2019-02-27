@@ -158,7 +158,11 @@ export default {
           }
         }
 
-        this.$set(this.orgs[orgIndex], 'users', apiResponse.data.response)
+        if (apiResponse.data.response) {
+          this.$set(this.orgs[orgIndex], 'users', apiResponse.data.response)
+        } else {
+          this.$set(this.orgs[orgIndex], 'users', [])
+        }
       }
     },
 

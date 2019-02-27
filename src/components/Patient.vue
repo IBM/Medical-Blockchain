@@ -74,33 +74,28 @@
         <br>
         
         <div class="table-wrapper">
-          <div class="table-title">
-            <div class="row">
-              <div class="col-sm-8"><h2>Document <b>ACL</b></h2></div>
-              <div class="col-sm-4">
-                <button type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Give Access</button>
-              </div>
-            </div>
-          </div>
           <table class="table table-bordered">
             <thead>
               <tr>
                 <th>Name</th>
                 <th>Email Id</th>
-                <th>Role</th>
-                <th>Actions</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>John Doe</td>
-                    <td>admin@admin.comn</td>
-                    <td>Doctor</td>
-                    <td>
-          <a class="add" title="Add" data-toggle="tooltip"><Octicon :icon="plus"></Octicon></a>
-                        <a class="delete" title="Delete" data-toggle="tooltip"><Octicon :icon="trashcan"></Octicon></a>
-                    </td>
-                </tr>
+              <tr>
+                <td colspan="2"><input type="text" v-model="patient.acladdemailid" class="form-control" name="emailid" id="emailid" placeholder="Enter Email ID" autocomplete="off" /></td>
+                  <td>
+                    <a class="add" title="Add" @click="addAccess"><Octicon :icon="plus"></Octicon></a>
+                  </td>
+              </tr>
+              <tr v-for="user in userListForDoc">
+                  <td>{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>
+                    <a class="delete" title="Delete" @click="deleteAccess(user)"><Octicon :icon="trashcan"></Octicon></a>
+                  </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -150,11 +145,13 @@ export default {
     isLogin: false,
     isLoggedIn: false,
     docListForUser: [],
+    userListForDoc: [],
     jwt: {}
   }),
   created () {
     serverBus.$on('allOrgs', (allOrgs) => {
       this.orgs = allOrgs
+      console.log(allOrgs)
     }),
     serverBus.$on('allRoles', (allRoles) => {
       this.roles = allRoles
@@ -213,11 +210,30 @@ export default {
         this.response = apiResponse.data
         if (apiResponse.data[corrId].transactionStatus != "initiated") {
           clearInterval(this.docStatusPoll)
+          
+          var userName = null
+          var userEmail = null
+          for (var org of this.orgs) {
+            if (org.id == this.jwt.oid) {
+              for (var user of org.users) {
+                if (user.uid == this.jwt.uid) {
+                  userName = user.name
+                  userEmail = user.userId
+                  break
+                }
+              }
+            }
+          }
+
           RedisApi.postUserToDocMapping([this.jwt.uid], {
             id: Object.keys(apiResponse.data[corrId].documentStatus)[0],
             name: docName
           })
-          RedisApi.postDocToUserMapping(Object.keys(apiResponse.data[corrId].documentStatus)[0], [this.jwt.uid])
+          RedisApi.postDocToUserMapping(Object.keys(apiResponse.data[corrId].documentStatus)[0], [{
+            id: this.jwt.uid,
+            name: userName,
+            email: userEmail
+          }])
         }
       }
     },
@@ -247,6 +263,79 @@ export default {
         const apiResponse = await RedisApi.getUserToDocMapping(uid)
         this.docListForUser = JSON.parse(apiResponse.data)
       }
+    },
+
+    async getDocACL () {
+      var docName = this.patient.acldocid
+      
+      var docId = null
+      for (var doc of this.docListForUser) {
+        if (doc.name == docName) {
+          docId = doc.id
+          break
+        }
+      }
+      
+      if (docId) {
+        const apiResponse = await RedisApi.getDocToUserMapping(docId)
+        this.userListForDoc = JSON.parse(apiResponse.data)
+      }
+    },
+
+    async addAccess () {
+      var emailId = this.patient.acladdemailid
+
+      for (var user of this.userListForDoc) {
+        if (user.email == emailId) {
+          console.log("User has permissions...")
+          this.patient.acladdemailid = ""
+          return
+        }
+      }
+
+      var docName = this.patient.acldocid
+     
+      var docId = null
+      for (var doc of this.docListForUser) {
+        if (doc.name == docName) {
+          docId = doc.id
+          break
+        }
+      }
+
+      var userId = null
+      var userName = null
+      for (var org of this.orgs) {
+        for (var user of org.users) {
+          if (user.userId == emailId) {
+            userId = user.uid
+            userName = user.name
+            break
+          }
+        }
+      }
+
+      if (userId && docId && docName && emailId) {
+        await RedisApi.postUserToDocMapping([userId], {
+          id: docId,
+          name: docName
+        })
+        await RedisApi.postDocToUserMapping(docId, [{
+          id: userId,
+          name: userName,
+          email: emailId
+        }])
+        this.patient.acladdemailid = ""
+        this.userListForDoc.push({
+          id: userId,
+          name: userName,
+          email: emailId
+        })
+      }
+    },
+
+    async deleteAccess (email) {
+      console.log(email)
     },
 
     async postDoc () {
@@ -282,37 +371,17 @@ export default {
   box-shadow: 0 1px 1px rgba(0,0,0,.05);
 }
 
-.table-title {
-  margin: 0 0 10px;
-}
-
-.table-title h2 {
-  margin: 6px 0 0;
-  font-size: 18px;
-}
-
-.table-title .add-new {
-  float: right;
-  height: 30px;
-  font-weight: bold;
-  font-size: 12px;
-  text-shadow: none;
-  min-width: 100px;
-  border-radius: 50px;
-  line-height: 13px;
-}
-
-table.table {
-  table-layout: fixed;
+.table {
+  margin-bottom: 0;
 }
 
 table.table tr th, table.table tr td {
   border-color: #e9e9e9;
+  vertical-align: middle;
 }
 
 table.table th i {
   font-size: 13px;
-  margin: 0 5px;
   cursor: pointer;
 }
 
@@ -323,8 +392,6 @@ table.table th:last-child {
 table.table td a {
   cursor: pointer;
   display: inline-block;
-  margin: 0 5px;
-  min-width: 24px;
 }
 
 table.table td a.add {
@@ -348,21 +415,6 @@ table.table td a.add i {
   margin-right: -1px;
   position: relative;
   top: 3px;
-}
-
-table.table .form-control {
-  height: 32px;
-  line-height: 32px;
-  box-shadow: none;
-  border-radius: 2px;
-}
-
-table.table .form-control.error {
-  border-color: #f50000;
-}
-
-table.table td .add {
-  display: none;
 }
 
 </style>

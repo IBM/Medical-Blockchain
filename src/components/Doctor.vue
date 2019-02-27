@@ -149,26 +149,28 @@ export default {
       var docContent = this.doctor.postdoccontent
      
       var patientId = null
+      var patientEmail = null
 
       for (var org of this.orgs) {
         if (org.id == this.jwt.oid) {
           for (var user of org.users) {
             if (user.name == patientName) {
               patientId = user.uid
+              patientEmail = user.userId
               break
             }
           }
         }
       }
 
-      if (patientName && patientId && docName && docContent) {
+      if (patientName && patientId && patientEmail && docName && docContent) {
         const apiResponse = await Api.postDocJson({
           name: docName,
           content: docContent
         })
         this.response = apiResponse.data
         this.docStatusPoll = setInterval(() => {
-          this.getPostDocStatus(apiResponse.data.response.correlationId, docName, patientId)
+          this.getPostDocStatus(apiResponse.data.response.correlationId, docName, patientId, patientName, patientEmail)
         }, 1000)
         setTimeout(() => {
           clearInterval(this.docStatusPoll)
@@ -176,7 +178,7 @@ export default {
       }
     },
 
-    async getPostDocStatus (corrId, docName, patientId) {
+    async getPostDocStatus (corrId, docName, patientId, patientName, patientEmail) {
       if (corrId) {
         const apiResponse = await Api.getPostDocStatus({
           correlationId: corrId
@@ -184,11 +186,34 @@ export default {
         this.response = apiResponse.data
         if (apiResponse.data[corrId].transactionStatus != "initiated") {
           clearInterval(this.docStatusPoll)
+          
+          var userName = null
+          var userEmail = null
+          for (var org of this.orgs) {
+            if (org.id == this.jwt.oid) {
+              for (var user of org.users) {
+                if (user.uid == this.jwt.uid) {
+                  userName = user.name
+                  userEmail = user.userId
+                  break
+                }
+              }
+            }
+          }
+          
           RedisApi.postUserToDocMapping([patientId, this.jwt.uid], {
             id: Object.keys(apiResponse.data[corrId].documentStatus)[0],
             name: docName
           })
-          RedisApi.postDocToUserMapping(Object.keys(apiResponse.data[corrId].documentStatus)[0], [patientId, this.jwt.uid])
+          RedisApi.postDocToUserMapping(Object.keys(apiResponse.data[corrId].documentStatus)[0], [{
+            id: patientId,
+            name: patientName,
+            email: patientEmail
+          }, {
+            id: this.jwt.uid,
+            name: userName,
+            email: userEmail
+          }])
         }
       }
     },
