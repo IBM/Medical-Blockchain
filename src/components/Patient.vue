@@ -85,16 +85,16 @@
             <tbody>
               <tr>
                 <td colspan="2"><input type="text" v-model="patient.acladdemailid" class="form-control" name="emailid" id="emailid" placeholder="Enter Email ID" autocomplete="off" /></td>
-                  <td>
-                    <a class="add" title="Add" @click="addAccess"><Octicon :icon="plus"></Octicon></a>
-                  </td>
+                <td>
+                  <a class="add" title="Add" @click="addAccess"><Octicon :icon="plus"></Octicon></a>
+                </td>
               </tr>
               <tr v-for="user in userListForDoc">
-                  <td>{{ user.name }}</td>
-                  <td>{{ user.email }}</td>
-                  <td>
-                    <a class="delete" title="Delete" @click="deleteAccess(user)"><Octicon :icon="trashcan"></Octicon></a>
-                  </td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                  <a class="delete" title="Delete" @click="deleteAccess(user)"><Octicon :icon="trashcan"></Octicon></a>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -172,7 +172,7 @@ export default {
     tabClick (newTab) {
       this.currentTab = newTab
       this.response = {}
-
+      this.patient.acldocid = null
       if (newTab == "get-doc" || newTab == "acl") {
         this.docListForUser = []
         this.getDocListForUser()
@@ -334,8 +334,27 @@ export default {
       }
     },
 
-    async deleteAccess (email) {
-      console.log(email)
+    async deleteAccess (user) {
+      var docName = this.patient.acldocid
+     
+      var docId = null
+      for (var doc of this.docListForUser) {
+        if (doc.name == docName) {
+          docId = doc.id
+          break
+        }
+      }
+
+      if (docId) {
+        await RedisApi.patchUserToDocMapping(user.id, docId)
+        await RedisApi.patchDocToUserMapping(docId, user.id)
+        for (var index in this.userListForDoc) {
+          if (this.userListForDoc[index].id == user.id) {
+            this.userListForDoc.splice(index, 1)
+            break
+          }
+        }
+      }
     },
 
     async postDoc () {
@@ -375,6 +394,11 @@ export default {
   margin-bottom: 0;
 }
 
+.table-wrapper {
+  overflow: auto;
+  height: calc(50vh - 185px);
+}
+
 table.table tr th, table.table tr td {
   border-color: #e9e9e9;
   vertical-align: middle;
@@ -383,10 +407,6 @@ table.table tr th, table.table tr td {
 table.table th i {
   font-size: 13px;
   cursor: pointer;
-}
-
-table.table th:last-child {
-  width: 100px;
 }
 
 table.table td a {

@@ -11,8 +11,6 @@ const fetch = () => {
 
 export default {
   postUserToDocMapping (users, doc) {
-    console.log(users)
-    console.log(doc)
     return fetch().post('/aclusertodoc', {
       "users": users,
       "doc": doc
@@ -32,5 +30,19 @@ export default {
 
   getDocToUserMapping (docId) {
     return fetch().get(`/acldoctouser/${docId}`)
+  },
+  
+  patchUserToDocMapping (userId, docId) {
+    return fetch().patch('/aclusertodoc', {
+      "userId": userId,
+      "docId": docId
+    })
+  },
+  
+  patchDocToUserMapping (docId, userId) {
+    return fetch().patch('/acldoctouser', {
+      "docId": docId,
+      "userId": userId
+    })
   },
 }

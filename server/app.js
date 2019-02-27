@@ -13,6 +13,7 @@ logger.debug("launching medrec backend");
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'POST, GET, PATCH');
   next();
 });
 
@@ -113,6 +114,66 @@ app.get('/acldoctouser/:docid', function(req, res) {
 
     console.log(result);
     res.status(200).send(JSON.stringify(result));
+  });
+});
+
+app.patch('/aclusertodoc', function(req, res) {
+  var redisClient = redisClientUserToDoc;
+  
+  logger.debug("-- DELETE /aclusertodoc");
+  console.log(req.body.userId);
+  console.log(req.body.docId);
+
+  redisClient.get(req.body.userId, function(err, result) {
+    if (err)
+      throw err;
+
+    if (result) {
+      result = JSON.parse(result);
+      for (var index in result) {
+        if (result[index].id == req.body.docId) {
+          result.splice(index, 1);
+          break;
+        }
+      }
+      redisClient.set(req.body.userId, JSON.stringify(result));
+    }
+  });
+
+  logger.debug("-- Complete...");
+  
+  res.status(200).send({
+    status: "complete"
+  });
+});
+
+app.patch('/acldoctouser', function(req, res) {
+  var redisClient = redisClientDocToUser;
+  
+  logger.debug("-- DELETE /acldoctouser");
+  console.log(req.body.docId);
+  console.log(req.body.userId);
+
+  redisClient.get(req.body.docId, function(err, result) {
+    if (err)
+      throw err;
+
+    if (result) {
+      result = JSON.parse(result);
+      for (var index in result) {
+        if (result[index].id == req.body.userId) {
+          result.splice(index, 1);
+          break;
+        }
+      }
+      redisClient.set(req.body.docId, JSON.stringify(result));
+    }
+  });
+
+  logger.debug("-- Complete...");
+  
+  res.status(200).send({
+    status: "complete"
   });
 });
 
