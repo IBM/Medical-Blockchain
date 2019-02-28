@@ -7,7 +7,7 @@
     <div class="component-inner-container reactive-list" v-if="!isLogin">
       <center>
         <button type="button" class="btn btn-primary" style="display: block; margin-bottom: 5px;" v-for="org in orgs">
-          {{ org.name }} ({{ org.id }})
+          {{ org.name }}
         </button>
       </center>
     </div>
@@ -198,7 +198,9 @@ export default {
 <style scoped>                           
 
 .component-container {
-  float: left;
+  position: absolute;
+  left: 0;
+  top: 50vh;
 }
 
 </style>

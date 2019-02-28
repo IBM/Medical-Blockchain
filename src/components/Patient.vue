@@ -7,10 +7,12 @@
     <div class="component-inner-container reactive-list" v-if="!isLogin">
       <center>
         <button type="button" class="btn btn-primary" style="display: block; margin-bottom: 5px;" v-for="org in orgs">
-          {{ org.name }} ({{ org.id }})
-          <button type="button" class="btn btn-warning" style="display: block; margin-bottom: 5px;" v-for="user in org.users">
-            {{ user.name }} ({{ user.userId }})
-          </button>
+          {{ org.name }}
+          <span v-for="user in org.users">
+            <button type="button" class="btn btn-warning" style="display: block; margin-bottom: 5px;" v-for="role in roles" v-if="role.id==user.roles[0] && role.name=='Patient'">
+              {{ user.name }} ({{ user.userId }})
+            </button>
+          </span>
         </button>
       </center>
     </div>
@@ -151,7 +153,6 @@ export default {
   created () {
     serverBus.$on('allOrgs', (allOrgs) => {
       this.orgs = allOrgs
-      console.log(allOrgs)
     }),
     serverBus.$on('allRoles', (allRoles) => {
       this.roles = allRoles
@@ -381,7 +382,9 @@ export default {
 <style scoped>                           
 
 .component-container {
-  float: right;
+  position: absolute;
+  left: 50vw;
+  top: 50vh;
 }
 
 .table-wrapper {

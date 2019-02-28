@@ -1,8 +1,14 @@
 <template>
-  <div class="component-container">
+  <div class="component-container expand-panel">
     <h3>Solution Admin</h3>
+    <button class="btn btn-info btn-sm expand-button" v-on:click="fullscreen()">
+      <Octicon :icon="screenNormal" v-if="isScreenExpanded"></Octicon>
+      <Octicon :icon="screenFull" v-else-if="!isScreenExpanded"></Octicon>
+    </button>
+
     <div class="top-div">
-      <tabs 
+      <tabs
+        ref="foo"
         :tabs="tabs"
         :currentTab="currentTab"
         :wrapper-class="'default-tabs'"
@@ -57,6 +63,7 @@
 <script>                                                      
 import Api from '@/apis/AdminApi'
 import Tabs from 'vue-tabs-with-active-line'
+import Octicon, { screenFull, screenNormal } from 'octicons-vue'
 import { serverBus } from '@/main'
 
 const TABS = [
@@ -72,15 +79,18 @@ export default {
     solutionId: String
   },
   components: {
+    Octicon,
     Tabs
   },
   data: () => ({
+    screenFull, screenNormal,
     response: {},
     orgs: [],
     docs: [],
     tabs: TABS,
     currentTab: 'get-solution',
-    admin: {}
+    admin: {},
+    isScreenExpanded: false
   }),
   created () {
     serverBus.$on('triggerGetOrgs', (orgId) => {
@@ -99,6 +109,24 @@ export default {
 
       if (this.currentTab == 'get-solution')
         this.getSolutionById()
+    },
+
+    fullscreen () {
+      if (this.isScreenExpanded) {
+        document.getElementsByClassName('expand-panel')[0].style.height = '50vh'
+        document.getElementsByClassName('expand-panel')[0].style.width = '50vw'
+      } else {
+        document.getElementsByClassName('expand-panel')[0].style.height = '100vh'
+        document.getElementsByClassName('expand-panel')[0].style.width = '100vw'
+      }
+      this.isScreenExpanded = !this.isScreenExpanded
+
+      setTimeout(() => { 
+        this.currentTab = 'delete-org-admin'
+        setTimeout(() => {
+          this.currentTab = 'get-solution'
+        }, 1)
+      }, 501)
     },
 
     async getSolutionById () {
@@ -209,7 +237,19 @@ export default {
 <style scoped>                           
 
 .component-container {
-  float: left;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.component-shell-container {
+  height: calc(100% - 158px);
+}
+
+.expand-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
 }
 
 </style>

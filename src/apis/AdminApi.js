@@ -45,10 +45,7 @@ export default {
   },
 
   putOrgs (model) {
-    return fetch().put('/v1/organizations', {
-      params: {
-        "solutionId": model.solutionId
-      },
+    return fetch().put(`/v1/organizations?solutionId=${model.solutionId}`, {
       "name": model.name,
       "solutionId": model.solutionId,
       "blockchainUserMode": "user",
@@ -65,10 +62,7 @@ export default {
   },
 
   postOrgAdmin (model) {
-    return fetch().post(`/v1/organizations/${model.organizationId}/administrators`, {
-      params: {
-        "solutionId": model.solutionId
-      },
+    return fetch().post(`/v1/organizations/${model.organizationId}/administrators?solutionId=${model.solutionId}`, {
       "organizationAdministrators": [
         model.adminEmailId
       ],

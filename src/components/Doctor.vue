@@ -7,10 +7,12 @@
     <div class="component-inner-container reactive-list" v-if="!isLogin">
       <center>
         <button type="button" class="btn btn-primary" style="display: block; margin-bottom: 5px;" v-for="org in orgs">
-          {{ org.name }} ({{ org.id }})
-          <button type="button" class="btn btn-warning" style="display: block; margin-bottom: 5px;" v-for="user in org.users">
-            {{ user.name }} ({{ user.userId }})
-          </button>
+          {{ org.name }}
+          <span v-for="user in org.users">
+            <button type="button" class="btn btn-warning" style="display: block; margin-bottom: 5px;" v-for="role in roles" v-if="role.id==user.roles[0] && role.name=='Doctor'">
+              {{ user.name }} ({{ user.userId }})
+            </button>
+          </span>
         </button>
       </center>
     </div>
@@ -33,9 +35,11 @@
           <div class="col" v-for="org in orgs" v-if="org.id==jwt.oid">
             <select class="form-control" v-model="doctor.postdocpatientname">
               <option value="" selected disabled>Select Patient</option>
-              <option v-for="user in org.users">
-                {{ user.name }}
-              </option>
+              <span v-for="user in org.users">
+                <option v-for="role in roles" v-if="role.id==user.roles[0] && role.name=='Patient'">
+                  {{ user.name }}
+                </option>
+              </span>
             </select>
           </div>
           <div class="col">
@@ -269,7 +273,9 @@ export default {
 <style scoped>                           
 
 .component-container {
-  float: right;
+  position: absolute;
+  left: 50vw;
+  top: 0;
 }
 
 </style>

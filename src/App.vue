@@ -33,6 +33,27 @@ body {
   padding: 0;
   height: 100%;
   width: 100%;
+  overflow: hidden;
+}
+
+h3 {
+  padding-top: 7px;
+  color: rgb(116, 224, 223) !important;
+}
+
+input {
+  background-color: rgb(73, 73, 73) !important;
+  color: white !important;
+}
+
+select {
+  background-color: rgb(73, 73, 73) !important;
+  color: white !important;
+}
+
+::placeholder {
+  color: white !important;
+  opacity: 0.6 !important;
 }
 
 #app {
@@ -52,10 +73,16 @@ body {
 }
 
 .component-container {
-  border: 1px solid #000000;
+  border: 0.5px solid rgb(73, 73, 73);
   width: 50vw;
   height: 50vh;
   box-sizing: border-box;
+  background-color: rgba(23, 23, 23, 1);
+}
+
+.expand-panel {
+  transition: height 500ms, width 500ms;
+  z-index: 9999999;
 }
 
 .component-inner-container {
@@ -63,7 +90,7 @@ body {
 }
 
 .reactive-list {
-  height: calc(50vh - 50px);
+  height: calc(50vh - 60px);
   overflow: scroll;
 }
 
@@ -73,10 +100,10 @@ body {
 
 .component-shell-container {
   padding: 20px;
-  background-color: #000000;
+  background-color: rgba(73, 73, 73, 1);
   margin-left: 20px;
   margin-right: 20px;
-  height: calc(50vh - 152px);
+  height: calc(50vh - 158px);
   overflow: scroll;
   text-align: left;
 }
@@ -93,7 +120,7 @@ body {
   padding-bottom: 8px;
   font-size: 14px;
   letter-spacing: 0.8px;
-  color: gray;
+  color: white;
   text-decoration: none;
   border: none;
   background-color: transparent;
@@ -103,18 +130,18 @@ body {
 }
 
 .tabs__item_active {
-  color: black;
+  color: white;
 }
 
 .tabs__item:hover {
   border-bottom: 2px solid gray;
-  color: black;
+  color: white;
 }
 
 .tabs__item:focus {
   outline: none;
   border-bottom: 2px solid gray;
-  color: black;
+  color: white;
 }
 
 .tabs__item:first-child {
@@ -130,7 +157,7 @@ body {
   bottom: 0;
   left: 0;
   height: 2px;
-  background-color: black;
+  background-color: white;
 	transition: transform 0.4s ease, width 0.4s ease;
 }
 
