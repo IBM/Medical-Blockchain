@@ -81,13 +81,13 @@ export default {
 
 .login-button {
   position: relative;
-  top: -30px;
+  top: -40px;
   left: calc(50vw/2 - 30px);
 }
 
 .logout-button {
   position: relative;
-  top: -30px;
+  top: -40px;
   left: calc(-50vw/2 + 30px);
 }
 
