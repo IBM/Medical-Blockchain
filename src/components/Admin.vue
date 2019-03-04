@@ -257,7 +257,7 @@ export default {
         if (org.name == orgName) {
           for (var user of org.users) {
             if (user.userId == admin) {
-              adminId = user.userDocId
+              adminId = user.uid
               break
             }
           }

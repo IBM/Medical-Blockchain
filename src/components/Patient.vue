@@ -1,6 +1,15 @@
 <template>
 <div class="component-container">
-  <h3>Patient</h3>
+  <h3 v-if="!isLoggedIn">Patient</h3>
+  <h3 v-else-if="isLoggedIn">
+    Hi
+    <span v-for="org in orgs" v-if="org.id==jwt.oid">
+      <span v-for="user in org.users" v-if="user.uid==jwt.uid">
+        {{ user.name }}
+      </span>
+    </span>
+  </h3>
+
   <Login :caller="caller" class="login-component"></Login>
 
   <div v-if="!isLoggedIn">
@@ -95,7 +104,7 @@
                 <td>{{ user.name }}</td>
                 <td>{{ user.email }}</td>
                 <td>
-                  <a class="delete" title="Delete" @click="deleteAccess(user)"><Octicon :icon="trashcan"></Octicon></a>
+                  <a v-if="user.id!=jwt.uid" class="delete" title="Delete" @click="deleteAccess(user)"><Octicon :icon="trashcan"></Octicon></a>
                 </td>
               </tr>
             </tbody>
