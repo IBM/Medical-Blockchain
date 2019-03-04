@@ -89,9 +89,11 @@
   </div>
 </template>
 
-<script>                                                      
+<script>
+import config from '@/secrets/config.json'
 import Api from '@/apis/AdminApi'
 import Tabs from 'vue-tabs-with-active-line'
+import VueJwtDecode from 'vue-jwt-decode'
 import Octicon, { screenFull, screenNormal, person } from 'octicons-vue'
 import { serverBus } from '@/main'
 
@@ -104,9 +106,6 @@ const TABS = [
 
 export default {
   name: 'Admin',
-  props: {
-    solutionId: String
-  },
   components: {
     Octicon,
     Tabs
@@ -123,7 +122,8 @@ export default {
     isLoggedIn: false,
     isLogin: false,
     token: '',
-    href: 'https://pbsa-prod.us-south.containers.mybluemix.net/d06f7015-3474-40ac-ae5d-d77f220fa068/onboarding/v1/logins'
+    solutionId: '',
+    jwt: {}
   }),
   created () {
     serverBus.$on('triggerGetOrgs', (orgId) => {
@@ -245,6 +245,7 @@ export default {
           adminEmailId: admin
         })
         this.response = apiResponse.data
+        this.searchAllUsersForOrgId(orgId)
       }
     },
     
@@ -281,6 +282,7 @@ export default {
           adminId: adminId
         })
         this.response = apiResponse.data
+        this.searchAllUsersForOrgId(orgId)
       } else {
         this.response = {
           "status": "Provided admin doesn't exist in Org"
@@ -302,7 +304,7 @@ export default {
     login () {
       this.isLogin = !this.isLogin
       if (this.isLogin) {
-        window.open(this.href, 'loginwindow', 'height=435,width=962')
+        window.open(config.iss + '/onboarding/v1/logins', 'loginwindow', 'height=435,width=962')
       }
     },
 
@@ -315,6 +317,8 @@ export default {
 
     loginSuccess () {
       sessionStorage[`admin-token`] = this.token
+      this.jwt = VueJwtDecode.decode(this.token)
+      this.solutionId = this.jwt.sid
       console.log("login success")
       this.isLoggedIn = !this.isLoggedIn
       this.getSolutionById()

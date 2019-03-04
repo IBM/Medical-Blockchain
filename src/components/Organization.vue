@@ -14,8 +14,14 @@
   <div v-if="!isLoggedIn">
     <div class="component-inner-container reactive-list" v-if="!isLogin">
       <center>
-        <button type="button" class="btn btn-primary" style="display: block; margin-bottom: 5px;" v-for="org in orgs">
-          {{ org.name }}
+        <button type="button" class="btn btn-primary" style="display: block; margin-bottom: 5px;" v-for="org in orgs" v-on:click="orgclick[org.id]?$set(orgclick,org.id,false):$set(orgclick,org.id,true)">
+          {{ org.name }} 
+          <span class="org-admin-list" v-if="orgclick[org.id]">
+            - 
+            <span v-for="user in org.users" v-if="user.isOrganizationAdmin">
+              {{ user.userId }}
+            </span>
+          </span>
         </button>
       </center>
     </div>
@@ -93,9 +99,6 @@ const TABS = [
 
 export default {
   name: 'Organization',
-  props: {
-    solutionId: String
-  },
   components: {
     Tabs,
     Login
@@ -107,14 +110,17 @@ export default {
     tabs: TABS,
     currentTab: 'put-org-user',
     admin: {},
+    orgclick: {},
     caller: 'org',
     isLogin: false,
     isLoggedIn: false,
-    jwt: {}
+    jwt: {},
+    solutionId: ''
   }),
   created () {
     serverBus.$on('allOrgs', (allOrgs) => {
       this.orgs = allOrgs
+      console.log(allOrgs)
     }),
     serverBus.$on('allRoles', (allRoles) => {
       this.roles = allRoles
@@ -127,7 +133,7 @@ export default {
     }),
     serverBus.$on(`${this.caller}-jwt`, (decodedJWT) => {
       this.jwt = decodedJWT
-      console.log(this.jwt)
+      this.solutionId = this.jwt.sid
     })
   },
   mounted () {
@@ -209,6 +215,10 @@ export default {
   position: absolute;
   left: 0;
   top: 50vh;
+}
+
+.org-admin-list {
+  color: #ffc107;
 }
 
 </style>

@@ -18,6 +18,7 @@
 <script>                                                      
 import Octicon, { person, reply, signOut } from 'octicons-vue'
 import VueJwtDecode from 'vue-jwt-decode'
+import config from '@/secrets/config.json'
 import { serverBus } from '@/main'
 
 export default {                                             
@@ -32,14 +33,13 @@ export default {
     person, reply, signOut,
     isLogin: false,
     isUserLoggedIn: false,
-    href: 'https://pbsa-prod.us-south.containers.mybluemix.net/d06f7015-3474-40ac-ae5d-d77f220fa068/onboarding/v1/logins',
     token: ''
   }),
   methods: {
     login () {
       this.isLogin = !this.isLogin
       if (this.isLogin) {
-        window.open(this.href, 'loginwindow', 'height=435,width=962')
+        window.open(config.iss + '/onboarding/v1/logins', 'loginwindow', 'height=435,width=962')
       }
       serverBus.$emit(`${this.caller}-isLogin`, this.isLogin)
     },

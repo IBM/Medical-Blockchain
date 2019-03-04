@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <Admin solutionId="medrec_test_1"></Admin>
+    <Admin></Admin>
     <Doctor></Doctor>
-    <Organization solutionId="medrec_test_1"></Organization>
+    <Organization></Organization>
     <Patient></Patient>
   </div>
 </template>

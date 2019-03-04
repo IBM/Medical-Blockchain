@@ -1,11 +1,12 @@
 import axios from 'axios'
 import { uuid } from 'vue-uuid'
+import config from '@/secrets/config.json'
 
-const channel = "bds-test"
+const channel = config.blockchain_channel
 
 const fetch = () => {
   return axios.create({
-    baseURL: 'https://cors-anywhere.herokuapp.com/' + 'https://pbsa-prod.us-south.containers.mybluemix.net/d06f7015-3474-40ac-ae5d-d77f220fa068/docstore',
+    baseURL: 'https://cors-anywhere.herokuapp.com/' + config.iss + '/docstore',
     headers: {
       'accept': 'application/json',
       'Content-Type': 'application/json',
