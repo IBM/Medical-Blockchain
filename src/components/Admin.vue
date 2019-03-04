@@ -6,7 +6,16 @@
       <Octicon :icon="screenFull" v-else-if="!isScreenExpanded"></Octicon>
     </button>
 
-    <div class="top-div">
+    <div v-if="!isLoggedIn">
+      <button class="btn btn-warning btn-sm admin-login-button" v-if="!isLogin" v-on:click="login()">
+        <Octicon :icon="person"></Octicon>
+      </button>
+      <div class="form-group component-inner-container" v-else-if="isLogin">
+        <textarea class="form-control" v-model="token" placeholder="Paste token here..."></textarea>
+        <button type="submit" class="btn btn-info btn-sm jwt-submit" v-on:click="verifyLogin()">Login</button>
+      </div> 
+    </div>
+    <div class="top-div" v-if="isLoggedIn">
       <tabs
         ref="foo"
         :tabs="tabs"
@@ -74,7 +83,7 @@
       </div>
     </div>
 
-    <div class="component-shell-container">
+    <div class="component-shell-container" v-if="isLoggedIn">
       <tree-view :data="response" />
     </div>
   </div>
@@ -83,7 +92,7 @@
 <script>                                                      
 import Api from '@/apis/AdminApi'
 import Tabs from 'vue-tabs-with-active-line'
-import Octicon, { screenFull, screenNormal } from 'octicons-vue'
+import Octicon, { screenFull, screenNormal, person } from 'octicons-vue'
 import { serverBus } from '@/main'
 
 const TABS = [
@@ -103,14 +112,18 @@ export default {
     Tabs
   },
   data: () => ({
-    screenFull, screenNormal,
+    screenFull, screenNormal, person,
     response: {},
     orgs: [],
     docs: [],
     tabs: TABS,
     currentTab: 'get-solution',
     admin: {},
-    isScreenExpanded: false
+    isScreenExpanded: false,
+    isLoggedIn: false,
+    isLogin: false,
+    token: '',
+    href: 'https://pbsa-prod.us-south.containers.mybluemix.net/d06f7015-3474-40ac-ae5d-d77f220fa068/onboarding/v1/logins'
   }),
   created () {
     serverBus.$on('triggerGetOrgs', (orgId) => {
@@ -118,9 +131,6 @@ export default {
     })
   },
   mounted () {
-    this.getSolutionById()
-    this.searchAllOrgs()
-    this.getAllRoles()
   },
   methods: {
     tabClick (newTab) {
@@ -288,6 +298,33 @@ export default {
         serverBus.$emit('allRoles', apiResponse.data.response)
       }
     },
+
+    login () {
+      this.isLogin = !this.isLogin
+      if (this.isLogin) {
+        window.open(this.href, 'loginwindow', 'height=435,width=962')
+      }
+    },
+
+    verifyLogin () {
+      if (!this.token)
+        return this.loginFail()
+
+      return this.loginSuccess()
+    },
+
+    loginSuccess () {
+      sessionStorage[`admin-token`] = this.token
+      console.log("login success")
+      this.isLoggedIn = !this.isLoggedIn
+      this.getSolutionById()
+      this.searchAllOrgs()
+      this.getAllRoles()
+    },
+
+    loginFail () {
+      console.log("login fail")
+    }
   }
 }
 
@@ -310,6 +347,21 @@ export default {
   position: absolute;
   top: 10px;
   left: 10px;
+}
+
+.jwt-submit {
+  margin-top: 10px;
+}
+
+.admin-login-button {
+  position: relative;
+  top: 50px;
+}
+
+textarea {
+  height: calc(50vh - 160px) !important;
+  background-color: rgb(73, 73, 73) !important;
+  color: white !important;
 }
 
 </style>

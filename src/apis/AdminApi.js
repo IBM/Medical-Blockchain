@@ -1,12 +1,11 @@
 import axios from 'axios'
-import config from '@/secrets/config.json'
 
 const fetch = () => {
   return axios.create({
     baseURL: 'https://cors-anywhere.herokuapp.com/' + 'https://pbsa-prod.us-south.containers.mybluemix.net/d06f7015-3474-40ac-ae5d-d77f220fa068/onboarding',
     headers: {
       'accept': 'application/json',
-      'Authorization': `bearer ${config.admin}`
+      'Authorization': `bearer ${sessionStorage['admin-token']}`
     }
   })
 }

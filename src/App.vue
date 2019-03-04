@@ -23,6 +23,7 @@ export default {
     Patient
   },
   created () {
+    sessionStorage['admin-token'] = ""
     sessionStorage['org-token'] = ""
     sessionStorage['user-doctor-token'] = ""
     sessionStorage['user-patient-token'] = ""
