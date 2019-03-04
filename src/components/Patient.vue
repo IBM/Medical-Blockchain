@@ -203,16 +203,11 @@ export default {
           content: docContent
         })
         this.response = apiResponse.data
-        this.docStatusPoll = setInterval(() => {
-          this.getPostDocStatus(apiResponse.data.response.correlationId, docName)
-        }, 1000)
-        setTimeout(() => {
-          clearInterval(this.docStatusPoll)
-        }, 10*1000)
+        this.getPostDocStatus(apiResponse.data.response.correlationId, docName, 0)
       }
     },
 
-    async getPostDocStatus (corrId, docName) {
+    async getPostDocStatus (corrId, docName, attempts) {
       if (corrId) {
         const apiResponse = await Api.getPostDocStatus({
           correlationId: corrId
@@ -235,7 +230,7 @@ export default {
             }
           }
 
-          RedisApi.postUserToDocMapping([this.jwt.uid], {
+          RedisApi.postUserToDocMapping(this.jwt.uid, {
             id: Object.keys(apiResponse.data[corrId].documentStatus)[0],
             name: docName
           })
@@ -244,6 +239,10 @@ export default {
             name: userName,
             email: userEmail
           }])
+        } else {
+          if (attempts < 5) {
+            this.getPostDocStatus(corrId, docName, attempts+1)
+          }
         }
       }
     },
@@ -326,7 +325,7 @@ export default {
       }
 
       if (userId && docId && docName && emailId) {
-        await RedisApi.postUserToDocMapping([userId], {
+        await RedisApi.postUserToDocMapping(userId, {
           id: docId,
           name: docName
         })

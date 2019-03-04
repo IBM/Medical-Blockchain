@@ -2,11 +2,8 @@
 <div class="component-container">
   <h3 v-if="!isLoggedIn">Organization Admin</h3>
   <h3 v-else-if="isLoggedIn">
-    Hi
     <span v-for="org in orgs" v-if="org.id==jwt.oid">
-      <span v-for="user in org.users" v-if="user.uid==jwt.uid">
-        {{ user.name }}
-      </span>
+      {{ org.name }}
     </span>
   </h3>
   <Login :caller="caller" class="login-component"></Login>
@@ -67,7 +64,7 @@
           <div class="col" v-for="org in orgs" v-if="org.id==jwt.oid">
             <select class="form-control" v-model="admin.delorgusername">
               <option value="" selected disabled>Select User</option>
-              <option v-for="user in org.users">
+              <option v-for="user in org.users" v-if="user.uid!=jwt.uid">
                 {{ user.name }}
               </option>
             </select>
@@ -120,7 +117,6 @@ export default {
   created () {
     serverBus.$on('allOrgs', (allOrgs) => {
       this.orgs = allOrgs
-      console.log(allOrgs)
     }),
     serverBus.$on('allRoles', (allRoles) => {
       this.roles = allRoles

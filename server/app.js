@@ -29,24 +29,22 @@ app.post('/aclusertodoc', function(req, res) {
   var redisClient = redisClientUserToDoc;
 
   logger.debug("-- POST /aclusertodoc");
-  console.log(req.body.users);
+  console.log(req.body.user);
   console.log(req.body.doc);
 
-  for (var userId of req.body.users) {
-    redisClient.get(userId, function(err, result) {
-      if (err)
-        throw err;
+  redisClient.get(req.body.user, function(err, result) {
+    if (err)
+      throw err;
 
-      if (result) {
-        result = JSON.parse(result);
-        result.push(req.body.doc);
-        redisClient.set(userId, JSON.stringify(result));
-      } else {
-        result = [req.body.doc];
-        redisClient.set(userId, JSON.stringify(result));
-      }
-    });
-  }
+    if (result) {
+      result = JSON.parse(result);
+      result.push(req.body.doc);
+      redisClient.set(req.body.user, JSON.stringify(result));
+    } else {
+      result = [req.body.doc];
+      redisClient.set(req.body.user, JSON.stringify(result));
+    }
+  });
 
   logger.debug("-- Complete...");
   

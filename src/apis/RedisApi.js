@@ -10,9 +10,9 @@ const fetch = () => {
 }
 
 export default {
-  postUserToDocMapping (users, doc) {
+  postUserToDocMapping (user, doc) {
     return fetch().post('/aclusertodoc', {
-      "users": users,
+      "user": user,
       "doc": doc
     })
   },

@@ -43,11 +43,7 @@
           <div class="col" v-for="org in orgs" v-if="org.id==jwt.oid">
             <select class="form-control" v-model="doctor.postdocpatientname">
               <option value="" selected disabled>Select Patient</option>
-              <span v-for="user in org.users">
-                <option v-for="role in roles" v-if="role.id==user.roles[0] && role.name=='Patient'">
-                  {{ user.name }}
-                </option>
-              </span>
+              <option v-for="user in org.users" v-if="isPatient(user)">{{ user.name }}</option>
             </select>
           </div>
           <div class="col">
@@ -124,9 +120,11 @@ export default {
   created () {
     serverBus.$on('allOrgs', (allOrgs) => {
       this.orgs = allOrgs
+      console.log(allOrgs)
     }),
     serverBus.$on('allRoles', (allRoles) => {
       this.roles = allRoles
+      console.log(allRoles)
     }),
     serverBus.$on(`${this.caller}-isLogin`, (login) => {
       this.isLogin = login
@@ -149,6 +147,15 @@ export default {
         this.docListForUser = []
         this.getDocListForUser()
       }
+    },
+
+    isPatient (user) {
+      for (var role of this.roles) {
+        if (role.name == "Patient" && user.roles.length>0 && role.id == user.roles[0]) {
+          return true
+        }
+      }
+      return false
     },
 
     handleFileUpload() {
@@ -181,24 +188,17 @@ export default {
           content: docContent
         })
         this.response = apiResponse.data
-        this.docStatusPoll = setInterval(() => {
-          this.getPostDocStatus(apiResponse.data.response.correlationId, docName, patientId, patientName, patientEmail)
-        }, 1000)
-        setTimeout(() => {
-          clearInterval(this.docStatusPoll)
-        }, 10*1000)
+        this.getPostDocStatus(apiResponse.data.response.correlationId, docName, patientId, patientName, patientEmail, 0)
       }
     },
 
-    async getPostDocStatus (corrId, docName, patientId, patientName, patientEmail) {
+    async getPostDocStatus (corrId, docName, patientId, patientName, patientEmail, attempts) {
       if (corrId) {
         const apiResponse = await Api.getPostDocStatus({
           correlationId: corrId
         })
         this.response = apiResponse.data
         if (apiResponse.data[corrId].transactionStatus != "initiated") {
-          clearInterval(this.docStatusPoll)
-          
           var userName = null
           var userEmail = null
           for (var org of this.orgs) {
@@ -213,7 +213,11 @@ export default {
             }
           }
           
-          RedisApi.postUserToDocMapping([patientId, this.jwt.uid], {
+          RedisApi.postUserToDocMapping(patientId, {
+            id: Object.keys(apiResponse.data[corrId].documentStatus)[0],
+            name: docName
+          })
+          RedisApi.postUserToDocMapping(this.jwt.uid, {
             id: Object.keys(apiResponse.data[corrId].documentStatus)[0],
             name: docName
           })
@@ -226,6 +230,10 @@ export default {
             name: userName,
             email: userEmail
           }])
+        } else {
+          if (attempts < 5) {
+            this.getPostDocStatus(corrId, docName, patientId, patientName, patientEmail, attempts+1)
+          }
         }
       }
     },
