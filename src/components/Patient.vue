@@ -148,9 +148,10 @@ import { serverBus } from '@/main'
 import Octicon, { trashcan, plus } from 'octicons-vue'
 
 const TABS = [
-  { title: 'Upload document', value: 'post-doc'},
-  { title: 'Get document', value: 'get-doc'},
-  { title: 'Access control', value: 'acl'},
+  { title: 'Upload Doc', value: 'post-doc'},
+  { title: 'Download Doc', value: 'get-doc'},
+  { title: 'View Access Log', value: 'get-access-log'},
+  { title: 'Doc Permissions', value: 'acl'},
 ]
 
 export default {

@@ -1,6 +1,6 @@
 <template>
 <div class="component-container">
-  <h3 v-if="!isLoggedIn">Organization Admin</h3>
+  <h3 v-if="!isLoggedIn">Hospital Admin</h3>
   <h3 v-else-if="isLoggedIn">
     <span v-for="org in orgs" v-if="org.id==jwt.oid">
       {{ org.name }}
@@ -90,8 +90,8 @@ import Login from '@/components/Login'
 import { serverBus } from '@/main'
 
 const TABS = [
-  { title: 'Put Org User', value: 'put-org-user'},
-  { title: 'Delete Org User', value: 'del-org-user'},
+  { title: 'Add User (Doctor/Patient)', value: 'put-org-user'},
+  { title: 'Delete User', value: 'del-org-user'},
 ]
 
 export default {

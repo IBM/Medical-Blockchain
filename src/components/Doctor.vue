@@ -93,8 +93,8 @@ import Login from '@/components/Login'
 import { serverBus } from '@/main'
 
 const TABS = [
-  { title: 'Upload document', value: 'post-doc'},
-  { title: 'Get document', value: 'get-doc'},
+  { title: 'Upload Doc', value: 'post-doc'},
+  { title: 'Download Doc', value: 'get-doc'},
 ]
 
 export default {

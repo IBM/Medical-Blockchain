@@ -1,7 +1,7 @@
 <template>
   <div class="component-container expand-panel">
     <h3>Solution Admin</h3>
-    <button class="btn btn-info btn-sm expand-button" v-on:click="fullscreen()">
+    <button class="btn btn-secondary btn-sm expand-button" v-on:click="fullscreen()">
       <Octicon :icon="screenNormal" v-if="isScreenExpanded"></Octicon>
       <Octicon :icon="screenFull" v-else-if="!isScreenExpanded"></Octicon>
     </button>
@@ -98,10 +98,10 @@ import Octicon, { screenFull, screenNormal, person } from 'octicons-vue'
 import { serverBus } from '@/main'
 
 const TABS = [
-  { title: 'Get solution', value: 'get-solution'},
-  { title: 'Put Organization', value: 'put-org'},
-  { title: 'Post Org Admin', value: 'post-org-admin'},
-  { title: 'Delete Org Admin', value: 'delete-org-admin'},
+  { title: 'View Solution', value: 'get-solution'},
+  { title: 'Add Hospital', value: 'put-org'},
+  { title: 'Add Hospital Admin', value: 'post-org-admin'},
+  { title: 'Delete Hospital Admin', value: 'delete-org-admin'},
 ]
 
 export default {
