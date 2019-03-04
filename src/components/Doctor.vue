@@ -14,14 +14,16 @@
   <div v-if="!isLoggedIn">
     <div class="component-inner-container reactive-list" v-if="!isLogin">
       <center>
-        <button type="button" class="btn btn-primary" style="display: block; margin-bottom: 5px;" v-for="org in orgs">
-          {{ org.name }}
+        <span v-for="org in orgs">
+          <button type="button" class="btn btn-secondary" style="display: block; margin-bottom: 5px;">
+            {{ org.name }}
+          </button>
           <span v-for="user in org.users">
-            <button type="button" class="btn btn-warning" style="display: block; margin-bottom: 5px;" v-for="role in roles" v-if="role.id==user.roles[0] && role.name=='Doctor'">
+            <button type="button" class="btn btn-success" style="display: block; margin-bottom: 5px;" v-for="role in roles" v-if="role.id==user.roles[0] && role.name=='Doctor'">
               {{ user.name }} ({{ user.userId }})
             </button>
           </span>
-        </button>
+        </span>
       </center>
     </div>
   </div>
@@ -142,6 +144,7 @@ export default {
     tabClick (newTab) {
       this.currentTab = newTab
       this.response = {}
+      this.doctor = {}
 
       if (newTab == "get-doc") {
         this.docListForUser = []
@@ -253,7 +256,7 @@ export default {
         const apiResponse = await Api.getDoc({
           docId: docId
         })
-        this.response = apiResponse.data.jsonContent
+        this.response = JSON.parse(apiResponse.data.jsonContent)
       }
     },
 

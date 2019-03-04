@@ -53,8 +53,10 @@ export default {
     },
 
     verifyLogin () {
-      if (!this.token)
+      if (!this.token) {
+        this.token = ''
         return this.loginFail()
+      }
 
       return this.loginSuccess()
     },
@@ -67,6 +69,7 @@ export default {
       serverBus.$emit(`${this.caller}-isLogin`, this.isLogin)
       serverBus.$emit(`${this.caller}-isLoggedIn`, true)
       serverBus.$emit(`${this.caller}-jwt`, VueJwtDecode.decode(this.token))
+      this.token = ''
     },
 
     loginFail () {

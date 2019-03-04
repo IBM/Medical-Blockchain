@@ -136,6 +136,7 @@ export default {
     tabClick (newTab) {
       this.currentTab = newTab
       this.response = {}
+      this.admin = {}
 
       if (this.currentTab == 'get-solution')
         this.getSolutionById()
@@ -309,8 +310,10 @@ export default {
     },
 
     verifyLogin () {
-      if (!this.token)
+      if (!this.token) {
+        this.token = ''
         return this.loginFail()
+      }
 
       return this.loginSuccess()
     },
@@ -318,6 +321,7 @@ export default {
     loginSuccess () {
       sessionStorage[`admin-token`] = this.token
       this.jwt = VueJwtDecode.decode(this.token)
+      this.token = ''
       this.solutionId = this.jwt.sid
       console.log("login success")
       this.isLoggedIn = !this.isLoggedIn

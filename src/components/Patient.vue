@@ -15,14 +15,16 @@
   <div v-if="!isLoggedIn">
     <div class="component-inner-container reactive-list" v-if="!isLogin">
       <center>
-        <button type="button" class="btn btn-primary" style="display: block; margin-bottom: 5px;" v-for="org in orgs">
-          {{ org.name }}
+        <span v-for="org in orgs">
+          <button type="button" class="btn btn-secondary" style="display: block; margin-bottom: 5px;">
+            {{ org.name }}
+          </button>
           <span v-for="user in org.users">
-            <button type="button" class="btn btn-warning" style="display: block; margin-bottom: 5px;" v-for="role in roles" v-if="role.id==user.roles[0] && role.name=='Patient'">
+            <button type="button" class="btn btn-danger" style="display: block; margin-bottom: 5px;" v-for="role in roles" v-if="role.id==user.roles[0] && role.name=='Patient'">
               {{ user.name }} ({{ user.userId }})
             </button>
           </span>
-        </button>
+        </span>
       </center>
     </div>
   </div>
@@ -66,6 +68,23 @@
           </div>
           <div class="col">
             <button type="button" class="btn btn-success" v-on:click="getDoc()">Commit</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- GET ACCESS LOG -->
+      <div class="component-inner-container" v-if="currentTab=='get-access-log'">
+        <div class="form-row">
+          <div class="col">
+            <select class="form-control" v-model="patient.getlogdocid">
+              <option value="" selected disabled>Select Document</option>
+              <option v-for="doc in docListForUser">
+                {{ doc.name }}
+              </option>
+            </select>
+          </div>
+          <div class="col">
+            <button type="button" class="btn btn-success" v-on:click="getAccessLog()">Commit</button>
           </div>
         </div>
       </div>
@@ -182,7 +201,7 @@ export default {
     tabClick (newTab) {
       this.currentTab = newTab
       this.response = {}
-      this.patient.acldocid = null
+      this.patient = {}
       if (newTab == "get-doc" || newTab == "acl") {
         this.docListForUser = []
         this.getDocListForUser()
@@ -262,7 +281,26 @@ export default {
         const apiResponse = await Api.getDoc({
           docId: docId
         })
-        this.response = apiResponse.data.jsonContent
+        this.response = JSON.parse(apiResponse.data.jsonContent)
+      }
+    },
+    
+    async getAccessLog () {
+      var docName = this.patient.getlogdocid
+
+      var docId = null
+      for (var doc of this.docListForUser) {
+        if (doc.name == docName) {
+          docId = doc.id
+          break
+        }
+      }
+
+      if (docId) {
+        const apiResponse = await Api.getAccessLog({
+          docId: docId
+        })
+        this.response = apiResponse.data.response
       }
     },
 

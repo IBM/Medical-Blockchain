@@ -27,6 +27,10 @@ export default {
   getDoc (model) {
     return fetch().get(`/v1/docstores/${channel}/documents/${model.docId}`)
   },
+  
+  getAccessLog (model) {
+    return fetch().get(`/v1/docstores/${channel}/documents/${model.docId}/access_log?scope=read`)
+  },
 
   postDocJson (model) {
     var docId = uuid.v1()
