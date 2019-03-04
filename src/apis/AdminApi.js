@@ -67,6 +67,9 @@ export default {
         model.adminEmailId
       ],
     })
-  }
+  },
 
+  deleteOrgAdmin (model) {
+    return fetch().delete(`/v1/organizations/${model.organizationId}/administrators/${model.adminId}?solutionId=${model.solutionId}`)
+  }
 }

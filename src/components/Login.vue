@@ -9,8 +9,8 @@
     </button>
 
     <div class="form-group component-inner-container" v-if="isLogin">
-      <textarea rows="10" class="form-control" v-model="token" placeholder="Paste token here..."></textarea>
-      <button type="submit" class="btn btn-info btn-sm" v-on:click="verifyLogin()">Login</button>
+      <textarea class="form-control" v-model="token" placeholder="Paste token here..."></textarea>
+      <button type="submit" class="btn btn-info btn-sm jwt-submit" v-on:click="verifyLogin()">Login</button>
     </div>
   </div>
 </template>                                                     
@@ -89,6 +89,16 @@ export default {
   position: relative;
   top: -40px;
   left: calc(-50vw/2 + 30px);
+}
+
+.jwt-submit {
+  margin-top: 10px;
+}
+
+textarea {
+  height: calc(50vh - 160px) !important;
+  background-color: rgb(73, 73, 73) !important;
+  color: white !important;
 }
 
 </style>

@@ -52,6 +52,26 @@
           </div>
         </div>
       </div>
+      
+      <!-- DELETE ORG ADMIN -->
+      <div class="component-inner-container" v-if="currentTab=='delete-org-admin'">
+        <div class="form-row">
+          <div class="col">
+            <select class="form-control" v-model="admin.delorgadminorgid">
+              <option value="" selected disabled>Select Organization</option>
+              <option v-for="org in orgs">
+                {{ org.name }}
+              </option>
+            </select>
+          </div>
+          <div class="col">
+            <input type="text" v-model="admin.delorgadminadmin" class="form-control" placeholder="Admin Email-Id">
+          </div>
+          <div class="col">
+            <button type="button" class="btn btn-success" v-on:click="deleteOrgAdmin()">Commit</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="component-shell-container">
@@ -215,6 +235,46 @@ export default {
           adminEmailId: admin
         })
         this.response = apiResponse.data
+      }
+    },
+    
+    async deleteOrgAdmin () {
+      var solId = this.solutionId
+      var admin = this.admin.delorgadminadmin
+      var orgName = this.admin.delorgadminorgid
+      
+      var orgId = false
+      // Get orgId from orgName
+      for (var org of this.orgs) {
+        if (org.name == orgName) {
+          orgId = org.id
+          break
+        }
+      }
+
+      var adminId = false
+      for (var org of this.orgs) {
+        if (org.name == orgName) {
+          for (var user of org.users) {
+            if (user.userId == admin) {
+              adminId = user.userDocId
+              break
+            }
+          }
+        }
+      }
+
+      if (solId && adminId && orgId) {
+        const apiResponse = await Api.deleteOrgAdmin({
+          solutionId: solId,
+          organizationId: orgId,
+          adminId: adminId
+        })
+        this.response = apiResponse.data
+      } else {
+        this.response = {
+          "status": "Provided admin doesn't exist in Org"
+        }
       }
     },
 
