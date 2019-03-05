@@ -153,6 +153,12 @@ export default {
       }
     },
 
+    setRequestProcessing () {
+      this.response = {
+        status: "Request processing..."
+      }
+    },
+
     isPatient (user) {
       for (var role of this.roles) {
         if (role.name == "Patient" && user.roles.length>0 && role.id == user.roles[0]) {
@@ -187,6 +193,8 @@ export default {
       }
 
       if (patientName && patientId && patientEmail && docName && docContent) {
+        this.setRequestProcessing()
+
         const apiResponse = await Api.postDocJson({
           name: docName,
           content: docContent
@@ -254,6 +262,8 @@ export default {
       }
 
       if (docId) {
+        this.setRequestProcessing()
+
         const apiResponse = await Api.getDoc({
           docId: docId
         })

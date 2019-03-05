@@ -93,7 +93,7 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Name</th>
+                <th>Hospital Name</th>
                 <th>Doc Version</th>
                 <th>Timestamp</th>
               </tr>
@@ -235,6 +235,12 @@ export default {
       }
     },
 
+    setRequestProcessing () {
+      this.response = {
+        status: "Request processing..."
+      }
+    },
+
     handleFileUpload() {
       this.patient.postdocfile = this.$refs.file.files[0]
     },
@@ -244,6 +250,8 @@ export default {
       var docContent = this.patient.postdoccontent
      
       if (docName && docContent) {
+        this.setRequestProcessing()
+
         const apiResponse = await Api.postDocJson({
           name: docName,
           content: docContent
@@ -305,6 +313,8 @@ export default {
       }
 
       if (docId) {
+        this.setRequestProcessing()
+
         const apiResponse = await Api.getDoc({
           docId: docId
         })

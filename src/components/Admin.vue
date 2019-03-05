@@ -142,6 +142,12 @@ export default {
         this.getSolutionById()
     },
 
+    setRequestProcessing () {
+      this.response = {
+        status: "Request processing..."
+      }
+    },
+
     fullscreen () {
       if (this.isScreenExpanded) {
         document.getElementsByClassName('expand-panel')[0].style.height = '50vh'
@@ -162,7 +168,10 @@ export default {
 
     async getSolutionById () {
       var solId = this.solutionId
+      
       if (solId) {
+        this.setRequestProcessing()
+
         const apiResponse = await Api.getSolutionById(solId)
         this.response = apiResponse.data
       }
@@ -172,6 +181,8 @@ export default {
       var orgName = this.admin.putorgorgname
       var solId = this.solutionId
       if (orgName && solId) {
+        this.setRequestProcessing()
+        
         const apiResponse = await Api.putOrgs({
           name: orgName,
           solutionId: solId
@@ -240,6 +251,8 @@ export default {
       }
 
       if (solId && admin && orgId) {
+        this.setRequestProcessing()
+        
         const apiResponse = await Api.postOrgAdmin({
           solutionId: solId,
           organizationId: orgId,
@@ -277,6 +290,8 @@ export default {
       }
 
       if (solId && adminId && orgId) {
+        this.setRequestProcessing()
+        
         const apiResponse = await Api.deleteOrgAdmin({
           solutionId: solId,
           organizationId: orgId,

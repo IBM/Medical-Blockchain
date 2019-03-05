@@ -142,6 +142,12 @@ export default {
       this.admin = {}
     },
 
+    setRequestProcessing () {
+      this.response = {
+        status: "Request processing..."
+      }
+    },
+
     async putOrgUser () {
       var solId = this.solutionId
       var userName = this.admin.putorgusername
@@ -160,6 +166,8 @@ export default {
       }
       
       if (orgId && solId && userName && userEmail && roleId) {
+        this.setRequestProcessing()
+
         const apiResponse = await Api.putOrgUser({
           orgId: orgId,
           solutionId: solId,
@@ -192,6 +200,8 @@ export default {
       }
 
       if (orgId && solId && userDocId) {
+        this.setRequestProcessing()
+
         const apiResponse = await Api.delOrgUser({
           orgId: orgId,
           solutionId: solId,
