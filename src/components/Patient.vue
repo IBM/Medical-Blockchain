@@ -87,6 +87,26 @@
             <button type="button" class="btn btn-success" v-on:click="getAccessLog()">Commit</button>
           </div>
         </div>
+        <br>
+        
+        <div class="table-wrapper" v-if="userListForDocAccess.length>0">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Doc Version</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="log in userListForDocAccess">
+                <td>{{ log.name }}</td>
+                <td>{{ log.version }}</td>
+                <td>{{ log.timestamp }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
       
       <!-- ACCESS CONTROL -->
@@ -103,8 +123,8 @@
         </div>
         <br>
         
-        <div class="table-wrapper">
-          <table class="table table-bordered">
+        <div class="table-wrapper" v-if="userListForDoc.length>0">
+          <table class="table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -114,7 +134,9 @@
             </thead>
             <tbody>
               <tr>
-                <td colspan="2"><input type="text" v-model="patient.acladdemailid" class="form-control" name="emailid" id="emailid" placeholder="Enter Email ID" autocomplete="off" /></td>
+                <td colspan="2" style="padding-top: 6px; padding-bottom: 6px; background-color: rgb(73,73,73);">
+                  <input type="text" v-model="patient.acladdemailid" class="form-control" name="emailid" id="emailid" placeholder="Enter Email ID" autocomplete="off" style="border: 0;"/>
+                </td>
                 <td>
                   <a class="add" title="Add" @click="addAccess"><Octicon :icon="plus"></Octicon></a>
                 </td>
@@ -132,7 +154,7 @@
       </div>
     </div>
 
-    <div class="component-shell-container" v-if="currentTab!='acl'">
+    <div class="component-shell-container" v-if="currentTab!='acl' && currentTab!='get-access-log'">
       <tree-view :data="response" />
     </div>
   </div>
@@ -177,6 +199,7 @@ export default {
     isLoggedIn: false,
     docListForUser: [],
     userListForDoc: [],
+    userListForDocAccess: [],
     jwt: {}
   }),
   created () {
@@ -191,6 +214,7 @@ export default {
     }),
     serverBus.$on(`${this.caller}-isLoggedIn`, (login) => {
       this.isLoggedIn = login
+      this.patient = {}
     }),
     serverBus.$on(`${this.caller}-jwt`, (decodedJWT) => {
       this.jwt = decodedJWT
@@ -203,7 +227,9 @@ export default {
       this.currentTab = newTab
       this.response = {}
       this.patient = {}
-      if (newTab == "get-doc" || newTab == "acl") {
+      this.userListForDoc = []
+      this.userListForDocAccess = []
+      if (newTab == "get-doc" || newTab == "acl" || newTab == "get-access-log") {
         this.docListForUser = []
         this.getDocListForUser()
       }
@@ -301,7 +327,22 @@ export default {
         const apiResponse = await Api.getAccessLog({
           docId: docId
         })
-        this.response = apiResponse.data.response
+        for (var log of apiResponse.data.response.accessLog) {
+          var orgId = log.transactionUser
+          var timestamp = new Date(log.transactionTime).toString()
+          var version = log.docVersion
+
+          for (var org of this.orgs) {
+            if (org.id == orgId) {
+              this.userListForDocAccess.push({
+                name: org.name,
+                version: version,
+                timestamp: timestamp.split("GMT")[0]
+              })
+              break
+            }
+          }
+        }
       }
     },
 
@@ -436,12 +477,14 @@ export default {
 
 .table-wrapper {
   width: 100%;
-  background: #fff;
-  box-shadow: 0 1px 1px rgba(0,0,0,.05);
+  background-color: rgb(73,73,73);
 }
 
 .table {
+  border: 0 !important;
   margin-bottom: 0;
+  background-color: rgb(73,73,73);
+  color: #ffffff;
 }
 
 .table-wrapper {
@@ -450,8 +493,8 @@ export default {
 }
 
 table.table tr th, table.table tr td {
-  border-color: #e9e9e9;
   vertical-align: middle;
+  border-top: 0;
 }
 
 table.table th i {
@@ -485,6 +528,10 @@ table.table td a.add i {
   margin-right: -1px;
   position: relative;
   top: 3px;
+}
+
+table.table tbody tr:nth-child(even) {
+  background-color: rgb(93, 93, 93);
 }
 
 </style>
