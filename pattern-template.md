@@ -49,7 +49,7 @@ This code pattern is for developers who want to integrate with the Blockchain So
 
 # Flow
 
-![Architecture flow](https://github.com/IBM/Medical-Blockchain/docs/doc-images/arch-flow.png?raw=true)
+![Architecture flow](https://github.com/IBM/Medical-Blockchain/blob/master/docs/doc-images/arch-flow.png?raw=true)
 
 ### Login flow
 1. All the stakeholders of the application (Solution Admin, Hospital Admin, Doctor and Patient) begin the user flow by logging into their respective dashboards.
