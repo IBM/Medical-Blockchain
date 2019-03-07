@@ -19,16 +19,39 @@ This code pattern is for developers who want to integrate with the Blockchain So
 
 ![Architecture flow](docs/doc-images/arch-flow.png?raw=true)
 
-1. User sends the investment portfolio to the Investment Portfolio service.
-2. User selects multiple news feeds for the application to monitor.
-3. Application sends the portfolio name and selected news feeds to the server.
-4. Server pulls the user's portfolio from the investment portfolio service.
-5. Server then spawns a process for each feed to monitor them in parallel.
-6. Each process spawns two threads:
-   * One that starts and stops recording the clip once the process identifies an appropriate clip for the user based on the portfolio
-   * The other sends the clip extracted through an error detect sequence to fix any encoding issues with the clip
-7. Processes continuously send the clips to be stored in a repository.
-8. User gets the clips on the client side through a socket connection to the server.
+### Login Flow
+1. All the stakeholders of the application (Solution Admin, Hospital Admin, Doctor and Patient) begin the user flow by logging into their respective dashboards.
+1. Clicking the login button leads to the login portal of the Blockchain Solution Manager, hosted on the IBM cloud.
+1. The login portal uses OpenAPI Connect and allows the user the login through any onboarded IDP (in our example, we have onboarded IBMID ad GoogleID). Successful authentication leads to the JWT credentials for the user.
+
+### Admin Dashboard
+1. The Solution Admin flow begins at the Admin Component, and requires the user to authenticate themselves through the Login Flow described above.
+1. After successful authentication, the user can access the solution admin dashboard. They are able to view the solution, and add/remove hospitals from the solution using the Admin API's.
+1. All the Admin API's connect with the Blockchain Solution Manager through REST to process the user queries.
+1. The Blockchain Solution Manager connects with the IBM Blockchain Platform and updates the ledger appropriately.
+
+### Organization Dashboard
+1. The Hospital Admin flow begins at the Organization Component, and requires the user to authenticate themselves through the Login Flow described above.
+1. After successful authentication, the user can access the hospital admin dashboard. They are able to add/remove any user in their respective hospital with the onboarded roles (Patient/Doctor in our case) using the Organization API's.
+1. All the Organization API's connect with the Blockchain Solution Manager through REST to process the user queries.
+1. The Blockchain Solution Manager connects with the IBM Blockchain Platform and updates the ledger appropriately.
+
+### Doctor Dashboard
+1. The Doctor flow begins at the Doctor Component, and requires the user to authenticate themselves through the Login Flow described above.
+1. After successful authentication, the user can access the doctor dashboard. They are able to upload a medical record for a patient who is part of their hostpital and download any medical record associated with a patient to which they have access to, using the Doctor API's. The ACL's for all the patient documents is application level and is maintained through the Document ACL flow described below.
+1. All the Doctor API's connect with the Blockchain Document Store through REST to process the user queries.
+1. The Blockchain Document Store connects with the IBM Blockchain Platform and updates the ledger appropriately.
+
+### Patient Dashboard
+1. The Patient flow begins at the Patient Component, and requires the user to authenticate themselves through the Login Flow described above.
+1. After successful authentication, the user can access the patient dashboard. They are able to upload a medical record for themselves, download any of their medical records, view the access logs of their documents, and view/manage permissions to their documents, using the Patient API's. The ACL's for all the documents is application level and is maintained through the Document ACL flow described below.
+1. All the Patient API's connect with the Blockchain Document Store through REST to process the user queries.
+1. The Blockchain Document Store connects with the IBM Blockchain Platform and updates the ledger appropriately.
+
+### Document Access Control List (ACL) Flow
+1. The Doctor and Patient Component are connected with the Redis API's that invoke methods to manage the document level access control across hospitals.
+1. The Redis API's talk to a NodeJS server deployed in a Docker container in a Kubernetes cluster on the IBM Cloud.
+1. The server talks to two Redis databases which hold the access-per-document and access-per-user permissions. 
 
 # Included components
 
