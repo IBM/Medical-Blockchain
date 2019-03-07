@@ -127,6 +127,7 @@ export default {
     serverBus.$on(`${this.caller}-isLoggedIn`, (login) => {
       this.isLoggedIn = login
       this.admin = {}
+      this.response = {}
     }),
     serverBus.$on(`${this.caller}-jwt`, (decodedJWT) => {
       this.jwt = decodedJWT

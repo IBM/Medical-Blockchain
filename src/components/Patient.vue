@@ -215,6 +215,7 @@ export default {
     serverBus.$on(`${this.caller}-isLoggedIn`, (login) => {
       this.isLoggedIn = login
       this.patient = {}
+      this.response = {}
     }),
     serverBus.$on(`${this.caller}-jwt`, (decodedJWT) => {
       this.jwt = decodedJWT
