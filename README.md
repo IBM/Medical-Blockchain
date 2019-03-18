@@ -75,30 +75,165 @@ This code pattern is for developers who want to integrate with the Blockchain So
 
 ## Manually deploy to local machine
 1. [Set up your machine](#1-set-up-your-machine)
-2. [Clone the repository](#2-clone-the-repository)
-3. [Run the application in a Docker container](#3-run-with-docker)
+2. [Create IBM cloud services](#2-create-ibm-cloud-services)
+3. [Create a solution](#3-create-a-solution)
+4. [Clone the repository](#4-clone-the-repository)
+5. [Modify the configuration files](#5-modify-the-configuration-files)
+6. [Run the application](#6-run-the-application)
 
 ### 1. Set up your machine
-- [Docker](https://www.docker.com/): Go to the Docker website and download the installer. After installation, run Docker.
 
-### 2. Clone the repository
+Install the following dependencies -
+
+- [Docker](https://www.docker.com/): Go to the Docker website and download the installer. After installation, run Docker.
+- [git](https://git-scm.com/): Install `git` which is a free and open source distributed version control system.
+
+### 2. Create IBM cloud services
+
+* Create the [IBM Cloud Kubernetes Service](https://cloud.ibm.com/catalog/infrastructure/containers-kubernetes).  You can find the service in the `Catalog`. For this code pattern, we can use the `Free` cluster, and give it a name.  Note, that the IBM Cloud allows one instance of a free cluster and expires after 30 days.
+
+<br>
+<p align="center">
+  <img src="docs/doc-gifs/1.gif">
+</p>
+<br>
+
+* Create two instances of [Databases for Redis Service](https://cloud.ibm.com/catalog/services/databases-for-redis).  You can find the service in the `Catalog`.
+
+<br>
+<p align="center">
+  <img src="docs/doc-gifs/2.gif">
+</p>
+<br>
+
+  > Note: You can use just one instance of Redis as well. Modify the code in the server repository to allow for this.
+
+* Create the [IBM Blockchain Service](https://cloud.ibm.com/catalog/services/ibm-blockchain-5-prod). You can find the service in the `Catalog`.
+
+<br>
+<p align="center">
+  <img src="docs/doc-gifs/3.gif">
+</p>
+<br>
+
+* Create the `Blockchain document store` and `Blockchain solution manager` services. These services are not currently available publicly on the `IBM cloud catalog`. You can reach out to `Rak-Joon Choi (rak-joon.choi@us.ibm.com)` to provision these services for you. Follow the service [documentation](https://cloud.ibm.com/docs/services/blockchain-document-store?topic=blockchain-document-store-getting-started#getting-started) to connect the `Blockchain document store` to the `Blockchain service`.
+
+<br>
+<p align="center">
+  <img src="docs/doc-gifs/4.gif">
+</p>
+<br>
+
+### 3. Create a solution
+
+* After configuring your services in the previous step, we now move on to creating a solution uisng our custom swagger url for the `blockchain solution manager` service. Go to the `Patch endpoint (/v1/solutions)` under `Solution` and authorize using the api by going to the `/v1/logins` url in a new tab, logging in as `Administrator`, and getting the JWT. Add the token prepended by `bearer` such that it looks like `bearer <JWT>`. After authorization, click on `try it out` to execute the api, and paste the following JSON in the `onboarding` section. Give the name `medrec_demo` to the solution.
+
+```
+{
+  "onboardingdata": {
+    "solution": {
+      "id": "medrec_demo",
+      "name": "demo for medrec pattern"
+    },
+    "roles": [
+      {
+        "id": "role_patient",
+        "name": "Patient",
+        "solutionId": "medrec_demo",
+        "isBlockchainRole": true
+      },
+      {
+        "id": "role_doctor",
+        "name": "Doctor",
+        "solutionId": "medrec_demo",
+        "isBlockchainRole": true
+      }
+    ]
+  }
+}
+```
+
+<br>
+<p align="center">
+  <img src="docs/doc-gifs/5.gif">
+</p>
+<br>
+
+* After creating the solution successfully, add yourself as the admin of the solution. Go to the `Post endpoint (/v1/solutions/{solutionId}/administrators)` under `Solution` and authorize using the api by going to the `/v1/logins` url in a new tab, logging in as `Administrator`, and getting the JWT. Add the token prepended by `bearer` such that it looks like `bearer <JWT>`. After authorization, click on `try it out` to execute the api, and type your email id under `solutionAdministrators` in the JSON object. Provide `medrec_demo` as the `solutionId`.
+
+<br>
+<p align="center">
+  <img src="docs/doc-gifs/6.gif">
+</p>
+<br>
+
+### 4. Clone the repository
 
 ```
 git clone https://github.com/IBM/Medical-Blockchain.git
+cd Medical-Blockchain
 ```
 
-### 3. Run with Docker
+### 5. Modify the configuration files
+
+* Modify the redis config file:
+  - Go to the previously provisioned redis services on IBM Cloud.
+  - Click on `Service credentials`.
+  - Click on `New credential` button.
+  - Once the new credentials are created, click on `view credentials`.
+  - From the JSON object, extract the URI from `connection.rediss.composed[0]`.
+  - From the JSON object, extract the certificate from `connection.rediss.certificate.certificate_base64`.
+  - Navigate to the `server/config.json` file in the cloned repository.
+  - Replace the URI and certificate values in the marked places.
+  - Repeat the steps for the second provisioned service, and enter it in the second spot in the config file.
+
+<br>
+<p align="center">
+  <img src="docs/doc-gifs/7.gif">
+</p>
+<br>
+
+* Modify the blockchain config file:
+  - Go to the `/v1/logins` url for your blockchain document store service.
+  - Login as administrator.
+  - Extract the `iss` field from the decoded JWT and remove `/onboarding` string from it.
+  - Navigate to the `src/secrets/config.json` file in the cloned repository.
+  - Replace the `iss` field with the extracted value above.
+  - Replace the `blockchain_channel` field with the name of the channel provided during connecting the blockchain service to the document store.
+
+<br>
+<p align="center">
+  <img src="docs/doc-gifs/8.gif">
+</p>
+<br>
+
+### 6. Run the application
+
+* Running the application locally:
+  - To run the application on the local system, execute the `run-application.sh` file.
+  - Go to `localhost:8080` to see the running application.
+
+<br>
+<p align="center">
+  <img src="docs/doc-gifs/9.gif">
+</p>
+<br>
+
+* Running the application on kubernetes:
+  - Navigate to server directory - `cd server`.
+  - Build the docker image for the server - `docker build -t <DOCKERHUB_USERNAME>/medrec-server .`
+  - Replace the image name in `manifest.yml`, where indicated.
+  - Apply the manifest to the previously provisioned kubernetes cluster.
+  - Navigate to `/src/apis/RedisApi.js` and replace the `baseURL` value with the Kubernetes load balancer IP.
+  - Build and run the Vue application by executing the below in the repository home.
+  - Go to `localhost:8080` to see the running application.
 
 ```
-$ bash docker-run.sh
+docker build -t medrec-vue .
+docker run -d --restart always --name medrec-vue -p 8080:8080 medrec-vue
 ```
 
-You can view the Docker logs of your store:
-```
-$ docker logs medrec
-```
-
-Access the running app in a browser at <http://0.0.0.0:8080/>.
+> Note: You can also deploy the Vue App to Kubernetes, by modifying the manifest.yml to support two pods.
 
 # License
 
