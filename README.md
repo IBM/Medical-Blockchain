@@ -4,7 +4,7 @@ Electronic medical records and data craves the need for innovation. The way pati
 
 This code pattern showcases a medical data/access management platform built using blockchain. The application shows the platform from the point of view of 4 stakeholders -
 * The solution admin is the admin of a conglomerate of hospitals, and has the highest of access levels in the hierarchy. They have the ability to onboard a new organization (hospital) to the conglomerate and assign/de-assign hospital admins on their dashboard.
-* The organization (hospital) admin is the admin of a particular hospital which is part of the conglomerate/solution. They have the abiltity to onboard new users with the role of either patient or doctor, or remove a user.
+* The organization (hospital) admin is the admin of a particular hospital which is part of the conglomerate/solution. They have the ability to onboard new users with the role of either patient or doctor, or remove a user.
 * The doctor is a user in the organization with the appropriate role and has the ability to upload documents for their patients and download/view documents of their patients to which they have been granted access.
 * The patient is a user in the organization with the appropriate role and has the ability to upload documents on their own, view them, view the document access logs and also manage access to their documents on their dashboard.
 
@@ -13,7 +13,7 @@ This code pattern is for developers who want to integrate with the Blockchain So
 * Connect the Blockchain Solution Manager and Blockchain Document Store with the IBM Blockchain Platform.
 * Create a VueJS web app that has multiple dashboards on a single page application, which can communicate in realtime with each other.
 * Create a NodeJS server that is deployed to Kubernetes on IBM Cloud, and connected with a Redis database deployed on the IBM Cloud.
-* Store and retrieve data from a Redis datastore for persitent storage through a NodeJS server.
+* Store and retrieve data from a Redis datastore for persistent storage through a NodeJS server.
 * Make REST calls to an external service.
 * Use JWT (JSON web token) tokens for user management.
 
@@ -24,7 +24,7 @@ This code pattern is for developers who want to integrate with the Blockchain So
 ### Login flow
 1. All the stakeholders of the application (solution admin, hospital admin, doctor and patient) begin the user flow by logging into their respective dashboards.
 2. Clicking the login button leads to the login portal of the Blockchain Solution Manager, hosted on the IBM cloud.
-3. The login portal uses OpenAPI Connect and allows the user the login through any onboarded identity provider (in our example, we have onboarded IBMID ad GoogleID). Successful authentication leads to the JWT credentials for the user.
+3. The login portal uses OpenAPI Connect and allows the user the login through any onboarded identity provider (in our example, we have on-boarded IBMID ad GoogleID). Successful authentication leads to the JWT credentials for the user.
 
 ### Admin dashboard
 4. The solution admin flow begins at the admin component, and requires the user to authenticate themselves through the login flow described above.
@@ -34,13 +34,13 @@ This code pattern is for developers who want to integrate with the Blockchain So
 
 ### Organization dashboard
 8. The hospital admin flow begins at the organization component, and requires the user to authenticate themselves through the login flow described above.
-9. After successful authentication, the user can access the hospital admin dashboard. They are able to add/remove any user in their respective hospital with the onboarded roles (patient/doctor in our case) using the organization API's.
+9. After successful authentication, the user can access the hospital admin dashboard. They are able to add/remove any user in their respective hospital with the on-boarded roles (patient/doctor in our case) using the organization API's.
 10. All the organization API's connect with the Blockchain Solution Manager through REST to process the user queries.
 11. The Blockchain Solution Manager connects with the IBM Blockchain Platform and updates the ledger appropriately.
 
 ### Doctor dashboard
 12. The doctor flow begins at the doctor component, and requires the user to authenticate themselves through the login flow described above.
-13. After successful authentication, the user can access the doctor dashboard. They are able to upload a medical record for a patient who is part of their hostpital and download any medical record associated with a patient to which they have access to, using the Doctor API's. The ACL's for all the patient documents is application level and is maintained through the Document ACL flow described below.
+13. After successful authentication, the user can access the doctor dashboard. They are able to upload a medical record for a patient who is part of their hospital and download any medical record associated with a patient to which they have access to, using the Doctor API's. The ACL's for all the patient documents is application level and is maintained through the Document ACL flow described below.
 14. All the doctor API's connect with the Blockchain Document Store through REST to process the user queries.
 15. The Blockchain Document Store connects with the IBM Blockchain Platform and updates the ledger appropriately.
 
@@ -58,8 +58,8 @@ This code pattern is for developers who want to integrate with the Blockchain So
 # Included components
 
 + [IBM Blockchain Platform](https://console.bluemix.net/docs/services/blockchain/howto/ibp-v2-deploy-iks.html#ibp-v2-deploy-iks) gives you total control of your blockchain network with a user interface that can simplify and accelerate your journey to deploy and manage blockchain components on the IBM Cloud Kubernetes Service.
-+ [IBM Blockchain Solution Manager:]() The Blockchain Document Store service includes the IBM Blockchain Solution Manager component, which enables organizations to easily manage blockchain networks, solutions, services, and users.
-+ [IBM Blockchain Document Store]() is a comprehensive document management service for IBM Blockchain Platform business networks.
++ [IBM Blockchain Solution Manager:](https://cloud.ibm.com/docs/services/blockchain-document-store?topic=blockchain-document-store-blockchain-solution-manager-api-acls) The Blockchain Document Store service includes the IBM Blockchain Solution Manager component, which enables organizations to easily manage blockchain networks, solutions, services, and users.
++ [IBM Blockchain Document Store](https://cloud.ibm.com/docs/services/blockchain-document-store?topic=blockchain-document-store-getting-started#getting-started) is a comprehensive document management service for IBM Blockchain Platform business networks.
 + [IBM Cloud Kubernetes Service](https://www.ibm.com/cloud/container-service) creates a cluster of compute hosts and deploys highly available containers. A Kubernetes cluster lets you securely manage the resources that you need to quickly deploy, update, and scale applications.
 + [IBM Cloud Databases for Redis Service:](https://console.bluemix.net/catalog/services/databases-for-redis) Redis is an open source, in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs and geospatial indexes with radius queries.
 
@@ -70,6 +70,19 @@ This code pattern is for developers who want to integrate with the Blockchain So
 * [Redis](https://redis.io/) is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
 * [Bootstrap](https://getbootstrap.com/) is a free and open-source front-end Web framework. It contains HTML and CSS-based design templates for typography, forms, buttons, navigation and other interface components, as well as optional JavaScript extensions.
 * [Docker](https://www.docker.com/) is a computer program that performs operating-system-level virtualization, also known as Containerization.
+
+## Prerequisites
+
+We find that Blockchain can be finicky when it comes to installing Node. We want to share this [StackOverflow response](https://stackoverflow.com/questions/49744276/error-cannot-find-module-api-hyperledger-composer) - because many times the errors you see with Compose are derived in having installed either the wrong Node version or took an approach that is not supported by Compose:
+
+* [IBM Cloud account](https://cloud.ibm.com/registration/?target=%2Fdashboard%2Fapps)
+* [Docker](https://www.docker.com/products) - latest
+* [Docker Compose](https://docs.docker.com/compose/overview/) - latest
+* [NPM](https://www.npmjs.com/get-npm) - latest
+* [nvm]() - latest
+* [Node.js](https://nodejs.org/en/download/) - Node v8.9.x
+* [Git client](https://git-scm.com/downloads) - latest
+
 
 # Running the application
 
@@ -126,7 +139,7 @@ Install the following dependencies -
 
 ### 3. Create a solution
 
-* After configuring your services in the previous step, we now move on to creating a solution uisng our custom swagger url for the `blockchain solution manager` service. Go to the `Patch endpoint (/v1/solutions)` under `Solution` and authorize using the api by going to the `/v1/logins` url in a new tab, logging in as `Administrator`, and getting the JWT. Add the token prepended by `bearer` such that it looks like `bearer <JWT>`. After authorization, click on `try it out` to execute the api, and paste the following JSON in the `onboarding` section. Give the name `medrec_demo` to the solution.
+* After configuring your services in the previous step, we now move on to creating a solution using our custom swagger url for the `blockchain solution manager` service. Go to the `Patch endpoint (/v1/solutions)` under `Solution` and authorize using the api by going to the `/v1/logins` url in a new tab, logging in as `Administrator`, and getting the JWT. Add the token prepended by `bearer` such that it looks like `bearer <JWT>`. After authorization, click on `try it out` to execute the api, and paste the following JSON in the `on-boarding` section. Give the name `medrec_demo` to the solution.
 
 ```
 {
