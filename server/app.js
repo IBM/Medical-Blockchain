@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require("body-parser");
 const log4js = require('log4js');
-const uuid = require('uuid/v4');
+//const uuid = require('uuid/v4');
 
 var redisClientUserToDoc = require('./redis-client-user-to-doc.js').client;
 var redisClientDocToUser = require('./redis-client-doc-to-user.js').client;
